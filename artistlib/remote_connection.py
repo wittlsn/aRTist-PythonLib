@@ -41,7 +41,7 @@ class Junction:
             self.S.setblocking(True)
             self.listen(0)
         except ConnectionRefusedError:
-            raise ConnectionRefusedError('The Connection to aRTist was refused. Is aRTist running and the remote connection enabled?')
+            print('The Connection to aRTist was refused. Is aRTist running and the remote connection enabled?')
         except Exception as e:
             raise e
         return self

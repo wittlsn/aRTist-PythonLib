@@ -185,6 +185,15 @@ class API():
         euler_scipy = rotation.as_euler("ZXY", degrees=True)
         euler_scipy = [euler_scipy[1], euler_scipy[2], euler_scipy[0]]
         self.rotate(id, *euler_scipy)
+
+    def rotate_from_quat(self, id: int | str, qaurternion: np.ndarray) -> None:
+        """Rotates an object to an absolute position.
+
+        Args:
+            id (int | str): ID of the Object.
+            qaurternion (np.ndarray): Quarternion in world coordinate system.
+        """
+        self.rotate_from_rotation_matrix(id, Rotation.from_quat(qaurternion).as_matrix())
     
     def get_position(self, id: int | str) -> np.ndarray:
         """Returns the current position of the object in [mm].

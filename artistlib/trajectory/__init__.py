@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .ct_trajectories import circular_trajectory, look_at_orientation, sphere_trajectory
+from .ct_trajectories import circular_trajectory, look_at_orientation, sphere_trajectory, arbitary_circular_trajectory

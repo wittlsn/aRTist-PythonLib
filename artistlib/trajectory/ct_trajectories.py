@@ -68,7 +68,6 @@ def sphere_trajectory(fod_mm: float, fdd_mm: float, number_of_projections: int) 
     point_array = np.zeros((number_of_projections, 3))
     
     point_array[:, 0] = cphi * np.cos(theta)
-    
     point_array[:, 1] = cphi * np.sin(theta)
     point_array[:, 2] = sphi
 
@@ -78,3 +77,25 @@ def sphere_trajectory(fod_mm: float, fdd_mm: float, number_of_projections: int) 
 
     return source_positions, detector_positions, orientation
 
+
+def arbitary_circular_trajectory(fod_mm: float, fdd_mm: float, number_of_projections: int, transformation: np.ndarray = np.eye(4), opening_angle: float = 0.2):
+    source_positions, detector_positions, orientation = circular_trajectory(fod_mm, fdd_mm, number_of_projections, opening_angle)
+
+    source_transformation_matrix = np.zeros((number_of_projections, 4, 4))
+    source_transformation_matrix[:, 3, 3] = 1.
+    detector_transformation_matrix = source_transformation_matrix.copy()
+
+    source_transformation_matrix[:, :3, 3] = source_positions
+    detector_transformation_matrix[:, :3, 3] = detector_positions
+
+    source_transformation_matrix[:, :3, :3] = orientation
+    detector_transformation_matrix[:, :3, :3] = orientation
+
+    transformation = np.expand_dims(transformation, 0)
+    source_transformation_matrix = transformation @ source_transformation_matrix
+    detector_transformation_matrix = transformation @ detector_transformation_matrix 
+
+    return source_transformation_matrix[:, :3, 3].reshape((number_of_projections, 3)), detector_transformation_matrix[:, :3, 3].reshape((number_of_projections, 3)), detector_transformation_matrix[:, :3, :3].reshape((number_of_projections, 3, 3))
+
+
+    
