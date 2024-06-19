@@ -51,14 +51,14 @@ def main():
     print(f'Detector Resolution: {detector.detector_resolution_mm} mm')
     print(f'Detector Pixel Count: {detector.detector_count_px} px')
 
-    # Make a projection an visualize it in python
-    image = artist_api.get_image()
-
     # Load .stl part
     new_id = artist_api.load_part(
         Path(r'C:\Program Files\BAM\aRTist 2.12\Data\Library\ExampleParts\Fun\Dog.stl'),  # Plesas check where the aRTist software is installed.
         'Fe',
         'test_object')
+    
+    # Make a projection an visualize it in python
+    image = artist_api.get_image()
     
     artist_api.delete_part('test_object')
     print(f'Inserted ID: {new_id}')
