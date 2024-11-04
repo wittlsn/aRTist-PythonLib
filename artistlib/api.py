@@ -266,13 +266,14 @@ class API():
 
         data_dict = dict()
         data_dict['focal_spot_position_mm'] = source_position.tolist()
-        data_dict['focal_spot_orientation_matrix'] = source_orientation.tolist()
+        data_dict['focal_spot_orientation_quat'] = Rotation.from_matrix(source_orientation).as_quat().tolist()
         data_dict['detector_center_position_mm'] = detector_position.tolist()
-        data_dict['detector_center_orientation_matrix'] = detector_orientation.tolist()
         data_dict['detector_center_orientation_quat'] = Rotation.from_matrix(detector_orientation).as_quat().tolist()
 
-        data_dict['detector_count_px'] = detector_pixel_count.tolist()
-        data_dict['pixel_pitch_mm'] = detector_resolution.tolist()
+        data_dict['image_width_px'] = detector_pixel_count.tolist()[0]
+        data_dict['pixel_pitch_width_mm'] = detector_resolution.tolist()[0]
+        data_dict['image_height_px'] = detector_pixel_count.tolist()[1]
+        data_dict['pixel_pitch_height_mm'] = detector_resolution.tolist()[1]
 
         return data_dict
     
