@@ -279,7 +279,7 @@ class API():
         Returns:
             np.ndarray: Pixel pitch of the detector (u, v).
         """
-        result = self.rc.send(f'::XDetector::GetResolution')
+        result = self.rc.send('::XDetector::GetResolution')
         return np.array(np.float32(result.split(" ")))
 
     def get_detector_pixel_count(self) -> np.ndarray:
@@ -288,7 +288,7 @@ class API():
         Returns:
             np.ndarray: Pixel count (u, v).
         """
-        result = self.rc.send(f'::XDetector::GetPixelSize')
+        result = self.rc.send('::XDetector::GetPixelSize')
         return np.array(np.int32(result.split(" ")))
     
     def set_material(self, id: int | str, material: str):

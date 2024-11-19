@@ -8,7 +8,7 @@ import time
 def load_projection(projection_path: Path, load_projection_geometry: bool = True) -> tuple[np.ndarray, dict]:
     try:
         projection_array = np.array(Image.open(projection_path))
-    except:
+    except FileNotFoundError:
         time.sleep(1)
         projection_array = np.array(Image.open(projection_path))
 

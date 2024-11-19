@@ -44,7 +44,7 @@ class XraySource(BaseHardware):
     @voltage_kv.setter
     def voltage_kv(self, voltage_kv: float) -> None:
         self.rc.send(f'set ::Xsource(Voltage) {voltage_kv}')
-        self.rc.send(f'::XSource::ComputeSpectrum')
+        self.rc.send('::XSource::ComputeSpectrum')
 
     @property
     def exposure_ma(self) -> float:
@@ -75,7 +75,7 @@ class XraySource(BaseHardware):
     @filter_material.setter
     def filter_material(self, filter_material: float) -> None:
         self.rc.send(f'set ::Xsource(FilterMaterial) {filter_material}')
-        self.rc.send(f'::XSource::ComputeSpectrum')
+        self.rc.send('::XSource::ComputeSpectrum')
 
     @property
     def filter_thickness_mm(self) -> float:
@@ -91,7 +91,7 @@ class XraySource(BaseHardware):
     @filter_thickness_mm.setter
     def filter_thickness_mm(self, filter_thickness_mm: float) -> None:
         self.rc.send(f'set ::Xsource(FilterThickness) {filter_thickness_mm}')
-        self.rc.send(f'::XSource::ComputeSpectrum')
+        self.rc.send('::XSource::ComputeSpectrum')
 
     @property
     def source_type(self) -> int:
@@ -111,7 +111,7 @@ class XraySource(BaseHardware):
     @source_type.setter
     def source_type(self, source_type: SOURCETYPES) -> None:
         if source_type == SOURCETYPES.MONOCHROMATIC:
-            self.rc.send(f'set ::Xsource(Tube) Mono')
+            self.rc.send('set ::Xsource(Tube) Mono')
         elif source_type == SOURCETYPES.GENERAL:
-            self.rc.send(f'set ::Xsource(Tube) General')
-        self.rc.send(f'::XSource::ComputeSpectrum')
+            self.rc.send('set ::Xsource(Tube) General')
+        self.rc.send('::XSource::ComputeSpectrum')

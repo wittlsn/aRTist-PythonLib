@@ -81,7 +81,7 @@ class Junction:
                 elif ("PROGRESS" in msg):
                     try:
                         self.progress = float(msg.strip('PROGRESS '))
-                    except:
+                    except ValueError:
                         self.progress = 0
                     continue
                 else:
@@ -112,13 +112,10 @@ class Junction:
         return self.answer[key]
 
     def save_image(self, imageName: str):
-        npTypes = [np.bool_, np.ubyte, np.byte, np.ubyte, np.short, np.ushort, np.intc, np.uintc, np.int_, np.uint, np.single, np.double]
         imageData = self.answer["BASE64"]
         decodedData = base64.b64decode((imageData))
         imageHeader = self.answer["IMAGE"].split()
-        # dtype = npTypes[int(imageHeader[np.double])]
-        dtype = np.double
-        im = np.frombuffer(decodedData, dtype).reshape((int(imageHeader[1]),int(imageHeader[2])))
+        im = np.frombuffer(decodedData, np.double).reshape((int(imageHeader[1]),int(imageHeader[2])))
         Image.fromarray(im).save(imageName)
 
     def receive_file(self, fileName):

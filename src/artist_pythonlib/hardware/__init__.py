@@ -14,3 +14,8 @@
 
 from .xray_source import XraySource
 from .xray_detector import XrayDetector
+
+__all__ = [
+    'XraySource',
+    'XrayDetector'
+]
