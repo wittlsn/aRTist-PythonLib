@@ -15,8 +15,8 @@ from __future__ import annotations
 
 from matplotlib import pyplot as plt
 
-from artistlib import API
-from artistlib.trajectory import circular_trajectory
+from artist_pythonlib import API
+from artist_pythonlib.trajectory import circular_trajectory
 
 
 NUMBER_OF_PROJECTIONS = 20

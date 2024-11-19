@@ -15,8 +15,8 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from artistlib import API
-from artistlib.hardware import XraySource, XrayDetector
+from artist_pythonlib import API
+from artist_pythonlib.hardware import XraySource, XrayDetector
 
 
 def main():
@@ -59,9 +59,6 @@ def main():
     
     # Make a projection an visualize it in python
     image = artist_api.get_image()
-    
-    artist_api.delete_part('test_object')
-    print(f'Inserted ID: {new_id}')
 
     # change material
     artist_api.set_material(new_id, 'Al')

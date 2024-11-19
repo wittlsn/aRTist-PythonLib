@@ -24,3 +24,8 @@ class SAVEMODES(IntEnum):
     FLOAT_TIFF = 2
     FLOAT_RAW = 3
     PNG = 4
+
+class PROJECTIONGEOMETRIES(IntEnum):
+    NONE = 0
+    STANDARD = 1
+    THD = 2

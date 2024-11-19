@@ -13,14 +13,15 @@
 # limitations under the License.
 from __future__ import annotations
 
-from .remote_connection import Junction, _rc
-from .common_types import SAVEMODES
-
 import numpy as np
 
 from scipy.spatial.transform import Rotation
 from pathlib import Path
 import json
+
+from artist_pythonlib.geometries import projection_geometry, thd_projection_geometry
+from artist_pythonlib.common_types import PROJECTIONGEOMETRIES, SAVEMODES
+from artist_pythonlib.remote_connection import Junction, _rc
 
 
 class API():
@@ -46,7 +47,7 @@ class API():
     def save_image(self, 
                    save_path: Path, 
                    save_mode: SAVEMODES = SAVEMODES.UINT16, 
-                   save_projection_geometry: bool = True):
+                   save_projection_geometry: PROJECTIONGEOMETRIES = PROJECTIONGEOMETRIES.NONE):
         """Save the current scene as projection. The projection geometry can be stored in a .json file.
 
         Args:
@@ -55,24 +56,38 @@ class API():
             save_projection_geometry (bool, optional): Projection geometry of the scene. Stem of save_path is used as path. Defaults to True.
         """
         save_path = save_path.resolve()
-        if save_projection_geometry:
-            save_path_json = save_path.parent / (save_path.stem + '.json')
+        if save_projection_geometry > 0:
+
+           
+            if save_projection_geometry == PROJECTIONGEOMETRIES.THD:
+                geom = self.projection_geometry(save_projection_geometry)
+
+                name = f'{save_path.stem}_{geom["header"]["uuid"]}'
+                save_path = save_path.parent / f'{name}.tif'
+                save_path_json = save_path.parent / f'{name}.json'
+            else:
+                save_path_json = save_path.parent / f'{save_path.stem}.json'
+            
+            
+            
             with open(str(save_path_json), 'w') as f:
-                json.dump(self.projection_geometry(), f, indent=4)
+                json.dump(geom, f, indent=4)
+            
+                
         
         if save_mode == SAVEMODES.UINT8:
             self._save_image_uint8(save_path)
         elif save_mode == SAVEMODES.UINT16:
             self._save_image_uint16(save_path)
         elif save_mode == SAVEMODES.FLOAT_TIFF:
-            self._save_image_float_tiff(save_path, save_projection_geometry)
+            self._save_image_float_tiff(save_path)
         elif save_mode == SAVEMODES.FLOAT_RAW:
             self._save_image_float_raw(save_path)
         elif save_mode == SAVEMODES.PNG:
             self._save_image_png(save_path)
         
     def _save_image_uint16(self, save_path: Path):
-        """Saves the current scene as porjection (.tif) and geometry (.json).
+        """Saves the current scene as projection (.tif) and geometry (.json).
 
         Args:
             save_path (Path): Save path of the projection.
@@ -82,7 +97,7 @@ class API():
         self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
 
     def _save_image_uint8(self, save_path: Path):
-        """Saves the current scene as porjection (.tif) and geometry (.json).
+        """Saves the current scene as projection (.tif) and geometry (.json).
 
         Args:
             save_path (Path): Save path of the projection.
@@ -95,23 +110,20 @@ class API():
         with open(str(save_path_json), 'w') as f:
             json.dump(self.projection_geometry(), f, indent=4)
 
-    def _save_image_float_tiff(self, save_path: Path, save_projection_geometry: bool = False):
-        """Saves the current scene as porjection (.tiff) and geometry (.json).
+    def _save_image_float_tiff(self, save_path: Path):
+        """Saves the current scene as projection (.tiff) and geometry (.json).
 
         Args:
             save_path (Path): Save path of the projection.
         """
         # self.rc.send('set imgList [Engine::Go]')
         save_path_projection = str(save_path.absolute()).replace('\\', '\\\\')
-        save_path_json = save_path.parent / (save_path.stem + '.json') # Image::SaveFile [lindex $imgList 0] [file join $env(HOME) Pictures/artistlib2.tif] true',
         self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
         # self.rc.send('foreach i $imgList {$i Delete}')
-        if save_projection_geometry:
-            with open(str(save_path_json), 'w') as f:
-                json.dump(self.projection_geometry(), f, indent=4)
+    
 
     def _save_image_float_raw(self, save_path: Path):
-        """Saves the current scene as porjection (.raw) and geometry (.json).
+        """Saves the current scene as projection (.raw) and geometry (.json).
 
         Args:
             save_path (Path): Save path of the projection.
@@ -125,7 +137,7 @@ class API():
             json.dump(self.projection_geometry(), f, indent=4)
 
     def _save_image_png(self, save_path: Path):
-        """Saves the current scene as porjection (.png) and geometry (.json).
+        """Saves the current scene as projection (.png) and geometry (.json).
 
         Args:
             save_path (Path): Save path of the projection.
@@ -175,7 +187,7 @@ class API():
 
         Args:
             id (int | str): ID of the Object.
-            rotation_matrix (np.ndarray): Rotationmatix in world coordinate system.
+            rotation_matrix (np.ndarray): Rotation matrix in world coordinate system.
         """
         rotation = Rotation.from_matrix(rotation_matrix)
         euler_scipy = rotation.as_euler("ZXY", degrees=True)
@@ -236,18 +248,18 @@ class API():
         return rotation
     
     def get_orientation(self, id) -> np.ndarray:
-        """Return the current orientation of the object as quarternion.
+        """Return the current orientation of the object as quaternion.
 
         Args:
             id (int | str): ID of the Object.
 
         Returns:
-            np.ndarray: Quarternion of the object in the wolrd coordinate system.
+            np.ndarray: Quaternion of the object in the world coordinate system.
         """
         rotation = Rotation.from_matrix(self.get_rotation_matrix(id))
         return rotation.as_quat()
     
-    def projection_geometry(self) -> dict:
+    def projection_geometry(self, mode: PROJECTIONGEOMETRIES = PROJECTIONGEOMETRIES.THD) -> dict:
         """Returns the current projection geometry of the scene. All positions are in [mm].
 
         Returns:
@@ -256,27 +268,11 @@ class API():
             'detector_center_orientation_matrix', 'detector_center_orientation_quat',
             'detector_count_px' and 'detector_resolution_mm'
         """
-        source_position = np.array(self.get_position('S'))
-        source_orientation = np.array(self.get_rotation_matrix('S'))
-        detector_position = np.array(self.get_position('D'))
-        detector_orientation = np.array(self.get_rotation_matrix('D'))
+        if mode == PROJECTIONGEOMETRIES.STANDARD:
+            return projection_geometry(self)
+        elif mode == PROJECTIONGEOMETRIES.THD:
+            return thd_projection_geometry(self)
 
-        detector_resolution = self.get_detector_resolution()
-        detector_pixel_count = self.get_detector_pixel_count()
-
-        data_dict = dict()
-        data_dict['focal_spot_position_mm'] = source_position.tolist()
-        data_dict['focal_spot_orientation_quat'] = Rotation.from_matrix(source_orientation).as_quat().tolist()
-        data_dict['detector_center_position_mm'] = detector_position.tolist()
-        data_dict['detector_center_orientation_quat'] = Rotation.from_matrix(detector_orientation).as_quat().tolist()
-
-        data_dict['image_width_px'] = detector_pixel_count.tolist()[0]
-        data_dict['pixel_pitch_width_mm'] = detector_resolution.tolist()[0]
-        data_dict['image_height_px'] = detector_pixel_count.tolist()[1]
-        data_dict['pixel_pitch_height_mm'] = detector_resolution.tolist()[1]
-
-        return data_dict
-    
     def get_detector_resolution(self) -> np.ndarray:
         """Returns the current pixel pitch of the detector as array
 

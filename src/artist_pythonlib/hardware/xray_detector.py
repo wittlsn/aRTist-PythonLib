@@ -13,8 +13,8 @@
 # limitations under the License.
 from __future__ import annotations
 
-from artistlib.api import API
-from artistlib.remote_connection import Junction
+from artist_pythonlib.api import API
+from artist_pythonlib.remote_connection import Junction
 from .base_hardware import BaseHardware
 
 import numpy as np
