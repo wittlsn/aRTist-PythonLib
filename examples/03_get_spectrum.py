@@ -1,10 +1,8 @@
-from artistlib import API
+from artist_pythonlib import API
 import numpy as np
 from matplotlib import pyplot as plt
 from xraydb import mu_elam
-import re
 
-# Install xraydb: pip install xraydb
 
 def scrap_spectrum(artist_spectrum: str):
     try:
@@ -17,7 +15,6 @@ def scrap_spectrum(artist_spectrum: str):
         return spectrum.reshape((-1, 2))
     except IndexError:
         raise ValueError('Ploychromatic Source must be set in aRTist!')
-
 
 
 def get_current_artist_spcectrum(api: API) -> np.ndarray:
