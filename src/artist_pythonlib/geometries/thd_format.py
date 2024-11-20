@@ -38,6 +38,7 @@ def thd_projection_geometry(api) -> dict:
     header_dict["uuid"] = json_header.uuid
     header_dict["timestamp"] = json_header.timestamp
 
+    projection_geometry["header"] = header_dict
     projection_geometry["focal_spot_position_mm"] = source_position.tolist()
     projection_geometry["focal_spot_orientation_quat"] = (
         Rotation.from_matrix(source_orientation).as_quat().tolist()
@@ -47,8 +48,7 @@ def thd_projection_geometry(api) -> dict:
         Rotation.from_matrix(detector_orientation).as_quat().tolist()
     )
 
-    image["uuid"] = json_header.uuid
-    image["timestamp"] = json_header.timestamp
+    image["header"] = header_dict
     image["image_path"] = f"{json_header.uuid}.tif"
 
     detector["image_width_px"] = detector_pixel_count.tolist()[0]
@@ -59,6 +59,5 @@ def thd_projection_geometry(api) -> dict:
     data_dict["projection_geometry"] = projection_geometry
     data_dict["image"] = image
     data_dict["detector"] = detector
-    data_dict["header"] = header_dict
 
     return data_dict

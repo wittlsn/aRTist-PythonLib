@@ -62,9 +62,10 @@ class API:
             if save_projection_geometry == PROJECTIONGEOMETRIES.THD:
                 geom = self.projection_geometry(save_projection_geometry)
 
-                name = f'{save_path.stem}_{geom["header"]["uuid"]}'
+                name = f'{save_path.stem}_{geom["image"]["header"]["uuid"]}'
                 save_path = save_path.parent / f"{name}.tif"
                 save_path_json = save_path.parent / f"{name}.json"
+                geom['image']['image_path'] = save_path.name
             else:
                 save_path_json = save_path.parent / f"{save_path.stem}.json"
 

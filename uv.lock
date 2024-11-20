@@ -761,7 +761,7 @@ wheels = [
 [[package]]
 name = "thd-json"
 version = "0.1.0"
-source = { git = "https://mygit.th-deg.de/roboct/definitions/json_schemas#b5e4c2ca23aa4a68e954ddaa3e19828bf8c872f6" }
+source = { git = "https://mygit.th-deg.de/roboct/definitions/json_schemas#6f7747ac2ce302921b47e055f84daaa9403483c7" }
 dependencies = [
     { name = "hypothesis" },
     { name = "hypothesis-jsonschema" },
