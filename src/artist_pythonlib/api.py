@@ -76,7 +76,7 @@ class API:
         elif save_mode == SAVEMODES.UINT16:
             self._save_image_uint16(save_path)
         elif save_mode == SAVEMODES.FLOAT_TIFF:
-            self._save_image_float_tiff(save_path)
+            self._save_image_float_tiff(save_path, save_projection_geometry)
         elif save_mode == SAVEMODES.FLOAT_RAW:
             self._save_image_float_raw(save_path)
         elif save_mode == SAVEMODES.PNG:
@@ -93,6 +93,9 @@ class API:
         self.rc.send(
             f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}'
         )
+        # self.rc.send('set imgList [Engine::Go]')
+        save_path_projection = str(save_path.absolute()).replace('\\', '\\\\')
+        self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
 
     def _save_image_uint8(self, save_path: Path):
         """Saves the current scene as projection (.tif) and geometry (.json).
@@ -108,12 +111,18 @@ class API:
         self.rc.send(
             f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}'
         )
+        # self.rc.send('set imgList [Engine::Go]')
+        save_path_projection = str(save_path.absolute()).replace('\\', '\\\\')
+        save_path_json = save_path.parent / (save_path.stem + '.json') # Image::SaveFile [lindex $imgList 0] [file join $env(HOME) Pictures/artistlib2.tif] true',
+        self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
 
         with open(str(save_path_json), "w") as f:
             json.dump(self.projection_geometry(), f, indent=4)
 
     def _save_image_float_tiff(self, save_path: Path):
         """Saves the current scene as projection (.tiff) and geometry (.json).
+    def _save_image_float_tiff(self, save_path: Path, save_projection_geometry: bool = False):
+        """Saves the current scene as porjection (.tiff) and geometry (.json).
 
         Args:
             save_path (Path): Save path of the projection.
@@ -124,6 +133,14 @@ class API:
             f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}'
         )
         # self.rc.send('foreach i $imgList {$i Delete}')
+        # self.rc.send('set imgList [Engine::Go]')
+        save_path_projection = str(save_path.absolute()).replace('\\', '\\\\')
+        save_path_json = save_path.parent / (save_path.stem + '.json') # Image::SaveFile [lindex $imgList 0] [file join $env(HOME) Pictures/artistlib2.tif] true',
+        self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
+        # self.rc.send('foreach i $imgList {$i Delete}')
+        if save_projection_geometry:
+            with open(str(save_path_json), 'w') as f:
+                json.dump(self.projection_geometry(), f, indent=4)
 
     def _save_image_float_raw(self, save_path: Path):
         """Saves the current scene as projection (.raw) and geometry (.json).
@@ -139,6 +156,10 @@ class API:
         self.rc.send(
             f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}'
         )
+        # self.rc.send('set imgList [Engine::Go]')
+        save_path_projection = str(save_path.absolute()).replace('\\', '\\\\')
+        save_path_json = save_path.parent / (save_path.stem + '.json') # Image::SaveFile [lindex $imgList 0] [file join $env(HOME) Pictures/artistlib2.tif] true',
+        self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
 
         with open(str(save_path_json), "w") as f:
             json.dump(self.projection_geometry(), f, indent=4)
@@ -158,6 +179,11 @@ class API:
     def translate(
         self, id: int | str, x: float = 0.0, y: float = 0.0, z: float = 0.0
     ) -> None:
+        # self.rc.send('set imgList [Engine::Go]')
+        save_path_projection = str(save_path.absolute()).replace('\\', '\\\\')
+        self.rc.send(f'set imgList [Engine::Go]; Image::SaveFloatTIFF [lindex $imgList 0] {save_path_projection} True; {r"foreach i $imgList {$i Delete}"}')
+            
+    def translate(self, id: int | str, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None:
         """Moves an object to an absolute position. All values in [mm].
 
         Args:
@@ -302,6 +328,27 @@ class API:
         elif mode == PROJECTIONGEOMETRIES.THD:
             return thd_projection_geometry(self)
 
+        source_position = np.array(self.get_position('S'))
+        source_orientation = np.array(self.get_rotation_matrix('S'))
+        detector_position = np.array(self.get_position('D'))
+        detector_orientation = np.array(self.get_rotation_matrix('D'))
+
+        detector_resolution = self.get_detector_resolution()
+        detector_pixel_count = self.get_detector_pixel_count()
+
+        data_dict = dict()
+        data_dict['focal_spot_position_mm'] = source_position.tolist()
+        data_dict['focal_spot_orientation_quat'] = Rotation.from_matrix(source_orientation).as_quat().tolist()
+        data_dict['detector_center_position_mm'] = detector_position.tolist()
+        data_dict['detector_center_orientation_quat'] = Rotation.from_matrix(detector_orientation).as_quat().tolist()
+
+        data_dict['image_width_px'] = detector_pixel_count.tolist()[0]
+        data_dict['pixel_pitch_width_mm'] = detector_resolution.tolist()[0]
+        data_dict['image_height_px'] = detector_pixel_count.tolist()[1]
+        data_dict['pixel_pitch_height_mm'] = detector_resolution.tolist()[1]
+
+        return data_dict
+    
     def get_detector_resolution(self) -> np.ndarray:
         """Returns the current pixel pitch of the detector as array
 
