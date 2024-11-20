@@ -6,11 +6,11 @@ from xraydb import mu_elam
 
 def scrap_spectrum(artist_spectrum: str):
     try:
-        spectrum_dict = artist_spectrum.split('# [degrees]} ')[1].split('{# Avg:')[0]
+        spectrum_dict = artist_spectrum.split('{# Avg:')[-1].split('Flux')[1]
         spectrum_dict = spectrum_dict.replace('{', '')
         spectrum_dict = spectrum_dict.replace('}', '')
         spectrum_dict = spectrum_dict.replace('\t', ' ')
-        spectrum_dict = spectrum_dict.split(' ')[:-1]
+        spectrum_dict = spectrum_dict.split(' ')[3:-1]
         spectrum = np.array(spectrum_dict, np.float32)
         return spectrum.reshape((-1, 2))
     except IndexError:
@@ -18,7 +18,7 @@ def scrap_spectrum(artist_spectrum: str):
 
 
 def get_current_artist_spcectrum(api: API) -> np.ndarray:
-    return scrap_spectrum(api.rc.send('[Engine::GetSpectrum]'))
+    return scrap_spectrum(api.rc.send('Engine::GetSpectrum'))
 
 
 def main():
