@@ -13,13 +13,15 @@
 # limitations under the License.
 from __future__ import annotations
 
-from matplotlib import pyplot as plt
+from pathlib import Path
 
-from artist_pythonlib import API
+from artist_pythonlib import API, PROJECTIONGEOMETRIES
 from artist_pythonlib.trajectory import circular_trajectory
 
 
 NUMBER_OF_PROJECTIONS = 20
+SAVEFOLDER = Path('./workspace') / 'example_02'
+SAVEFOLDER.mkdir(exist_ok=True)
 
 
 def main():
@@ -27,16 +29,14 @@ def main():
     api = API()
 
     for i in range(NUMBER_OF_PROJECTIONS):
-        source, detector, beta_angles = trajectory[0][i], trajectory[1][i], trajectory[2][i]
+        source, detector, rotation_matrix = trajectory[0][i], trajectory[1][i], trajectory[2][i]
         
         api.translate('S', *source)
         api.translate('D', *detector)
-        api.rotate('S', beta=beta_angles)
-        api.rotate('D', beta=beta_angles)
+        api.rotate_from_rotation_matrix('S', rotation_matrix)
+        api.rotate_from_rotation_matrix('D', rotation_matrix)
 
-        image = api.get_image()
-        plt.imshow(image)
-        plt.show()
+        api.save_image(SAVEFOLDER / f'{i:03}.tif', save_projection_geometry=PROJECTIONGEOMETRIES.THD)
 
 
 if __name__ == '__main__':
