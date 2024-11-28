@@ -215,16 +215,16 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.119.3"
+version = "6.121.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
     { name = "sortedcontainers" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a5/6f/98262d753772030d140d8cd04eadebac545ba4945702f4471decc37b8cb5/hypothesis-6.119.3.tar.gz", hash = "sha256:1403676d95bc9f118a30ce2c97fcbdd28dd99f3a1ffe3456970d98a56b370f36", size = 412497 }
+sdist = { url = "https://files.pythonhosted.org/packages/5f/df/8ef7373e2f0085cad8df0e64c614d9f1e17a77b5d7c7f1e0427ce590d316/hypothesis-6.121.0.tar.gz", hash = "sha256:99f6b38eacefbd7e10ddd3a716f242f4cfaabb3a332ff6b286f8314084d0be84", size = 413146 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/9d/32e2277a2dbc48b687f4acedbc6421c33a5f03177c8cb0d262d5ffc2ccf3/hypothesis-6.119.3-py3-none-any.whl", hash = "sha256:dff13689c4ceb0d84d92e0309fca3ccc1b547ac30552037c712a9080eb75cd05", size = 473632 },
+    { url = "https://files.pythonhosted.org/packages/2b/67/5dc915262859376f26b016562fcaaa3c9e74c244437d7ace395da9a1e7f6/hypothesis-6.121.0-py3-none-any.whl", hash = "sha256:7f62ec69a217e06adc6791eda4464fafd2f8d95b7bfe89a7120700cfac604adb", size = 474379 },
 ]
 
 [[package]]
@@ -760,13 +760,15 @@ wheels = [
 
 [[package]]
 name = "thd-json"
-version = "0.1.0"
-source = { git = "https://mygit.th-deg.de/roboct/definitions/json_schemas#6f7747ac2ce302921b47e055f84daaa9403483c7" }
+version = "0.1.9"
+source = { git = "https://mygit.th-deg.de/roboct/definitions/json_schemas#dbb5eb159bb3b71badbb2df7d20962d0010af093" }
 dependencies = [
     { name = "hypothesis" },
     { name = "hypothesis-jsonschema" },
     { name = "json-schema" },
     { name = "jsonschema" },
+    { name = "numpy" },
+    { name = "pillow" },
 ]
 
 [[package]]

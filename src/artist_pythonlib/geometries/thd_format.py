@@ -3,6 +3,7 @@ from scipy.spatial.transform import Rotation
 
 try:
     from thd_json.header import generate_header
+    from thd_json.projection import get_projection_dict
 except ModuleNotFoundError:
     from warnings import warn
 
@@ -28,36 +29,18 @@ def thd_projection_geometry(api) -> dict:
     detector_resolution = api.get_detector_resolution()
     detector_pixel_count = api.get_detector_pixel_count()
 
-    data_dict = dict()
-    header_dict = dict()
-    projection_geometry = dict()
-    image = dict()
-    detector = dict()
-
     json_header = generate_header()
-    header_dict["uuid"] = json_header.uuid
-    header_dict["timestamp"] = json_header.timestamp
 
-    projection_geometry["header"] = header_dict
-    projection_geometry["focal_spot_position_mm"] = source_position.tolist()
-    projection_geometry["focal_spot_orientation_quat"] = (
-        Rotation.from_matrix(source_orientation).as_quat().tolist()
-    )
-    projection_geometry["detector_center_position_mm"] = detector_position.tolist()
-    projection_geometry["detector_center_orientation_quat"] = (
-        Rotation.from_matrix(detector_orientation).as_quat().tolist()
-    )
-
-    image["header"] = header_dict
-    image["image_path"] = f"{json_header.uuid}.tif"
-
-    detector["image_width_px"] = detector_pixel_count.tolist()[0]
-    detector["pixel_pitch_width_mm"] = detector_resolution.tolist()[0]
-    detector["image_height_px"] = detector_pixel_count.tolist()[1]
-    detector["pixel_pitch_height_mm"] = detector_resolution.tolist()[1]
-
-    data_dict["projection_geometry"] = projection_geometry
-    data_dict["image"] = image
-    data_dict["detector"] = detector
+    image_path = f"{json_header.uuid}.tif"
+    data_dict = get_projection_dict(
+        image_path,
+        source_position,
+        detector_position,
+        Rotation.from_matrix(detector_orientation).as_quat(),
+        np.asarray(detector_pixel_count),
+        np.asarray(detector_resolution),
+        json_header,
+        Rotation.from_matrix(source_orientation).as_quat())
+   
 
     return data_dict
