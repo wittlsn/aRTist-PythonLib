@@ -26,4 +26,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-thd-json = { git = "https://mygit.th-deg.de/roboct/definitions/json_schemas" }
+thd-json = { git = "https://mygit.th-deg.de/roboct-public/roboct-schemas" }
